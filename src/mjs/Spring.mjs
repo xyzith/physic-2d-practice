@@ -27,10 +27,8 @@ class Spring {
 		const constraintX = Math.cos(deg) * deltaLength * elasticity / 2;
 		const constraintY = Math.sin(deg) * deltaLength * elasticity / 2;
 
-		node1.cx -= constraintX;
-		node1.cy -= constraintY;
-		node2.cx += constraintX;
-		node2.cy += constraintY;
+		node1.setConstraint(-constraintX, -constraintY);
+		node2.setConstraint(constraintX, constraintY);
 	}
 
 	render(ctx) {

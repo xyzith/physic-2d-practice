@@ -1,60 +1,58 @@
 class Node {
 	constructor(canvas, x, y, r = 5) {
 		this.ctx = canvas.getContext('2d');
-		this.tmpX = x;
-		this.tmpY = y;
 		this.zoneWidth = canvas.width;
 		this.zoneHeight = canvas.height;
+		this.x = x;
+		this.y = y;
 		this.r = r;
-		this.springs = [];
+		this.prevx = x;
+		this.prevy = y;
 		this.ax = 0;
 		this.ay = 0;
 		this.cx = 0;
 		this.cy = 0;
-		this.prevX = x;
-		this.prevY = y;
-	}
-
-	get x() {
-		const { tmpX, zoneWidth, cx } = this;
-		return Math.min(zoneWidth, Math.max(tmpX + cx, 0));
-	}
-
-	get y() {
-		const { tmpY, zoneHeight, cy } = this;
-		return Math.min(zoneHeight, Math.max(tmpY + cy, 0));
 	}
 
 	render() {
-		const { ctx, x, y, r } = this;
+		const { ctx, x, y, cx, cy, r, zoneWidth, zoneHeight } = this;
+
+		const finalx = Math.min(zoneWidth, Math.max(x + cx, 0));
+		const finaly = Math.min(zoneHeight, Math.max(y + cy, 0));
+
+		this.cx = 0;
+		this.cy = 0;
+		this.x = finalx;
+		this.y = finaly;
+
 		ctx.beginPath();
-		ctx.arc(x, y, r, 0, Math.PI * 2, true);
+		ctx.arc(finalx, finaly, r, 0, Math.PI * 2, true);
 		ctx.closePath();
 		ctx.fill();
 	}
 
-	addSpring(spring) {
-		this.springs.push(spring);
-	}
-
 	move(vx, vy, ax, ay) {
-		const { prevX, prevY } = this;
-		this.prevX = prevX - vx;
-		this.prevY = prevY - vy;
+		const { prevx, prevy } = this;
+		this.prevx = prevx - vx;
+		this.prevy = prevy - vy;
 		this.ax = ax;
 		this.ay = ay;
 	}
 
 	update(deltaT = 1) {
-		const { x, y, prevX, prevY, ax, ay } = this;
-		this.tmpX = x * 2 - prevX + ax * deltaT / 2;
-		this.tmpY = y * 2 - prevY + ay * deltaT / 2;
+		const { x, y, prevx, prevy, ax, ay, zoneWidth, zoneHeight } = this;
+		const tmpx = x * 2 - prevx + ax * deltaT / 2;
+		const tmpy = y * 2 - prevy + ay * deltaT / 2;
+		this.prevx = x;
+		this.prevy = y;
 
-		this.prevX = x;
-		this.prevY = y;
+		this.x = Math.min(zoneWidth, Math.max(tmpx, 0));
+		this.y = Math.min(zoneHeight, Math.max(tmpy, 0));
+	}
 
-		this.cx = 0;
-		this.cy = 0;
+	setConstraint(cx, cy) {
+		this.cx += cx;
+		this.cy += cy;
 	}
 }
 
